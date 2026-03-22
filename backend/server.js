@@ -26,8 +26,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://harmonious-pony-54358b.netlify.app",
-    credentials: true,
+    origin: "https://harmonious-pony-54358b.netlify.app"
   })
 );
 app.use(express.json());
