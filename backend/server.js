@@ -26,7 +26,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://gilded-lolly-f5636d.netlify.app/"
+    origin: "https://gilded-lolly-f5636d.netlify.app"
   })
 );
 app.use(express.json());
