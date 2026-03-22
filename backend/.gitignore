@@ -1,0 +1,19 @@
+# dependencies
+node_modules
+
+# env
+.env
+
+# logs
+logs
+*.log
+
+# uploads (eğer varsa)
+uploads/
+
+# system
+.DS_Store
+
+# editor
+.vscode
+.idea
