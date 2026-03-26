@@ -41,14 +41,11 @@ function Contact() {
 
         {/* Right: Address + Map */}
         <div className="col-md-6 ">
-        <div className=" d-flex ">
-          <h4>Our Address :</h4>
-          <p>
-            123 Hardware Street
-            Meath, Ireland
-          </p>
-        </div>
-        <hr />
+          <div className=" d-flex ">
+            <h4>Our Address :</h4>
+            <p>123 Hardware Street Meath, Ireland</p>
+          </div>
+          <hr />
           <div style={{ width: "100%", height: "350px" }}>
             <iframe
               title="NalburShop Map"

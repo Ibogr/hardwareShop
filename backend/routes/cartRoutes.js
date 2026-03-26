@@ -1,19 +1,15 @@
 import express from "express";
 import Cart from "../models/Cart.js";
-import verifyToken from "../middleware/authMiddleware.js"; // token kontrolü
+import verifyToken from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// -------------------
-// GET: Kullanıcının cart'ını getir
-// -------------------
 router.get("/", verifyToken, async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(
       "products.product"
     );
     if (!cart) {
-      // Eğer cart yoksa boş cart dön
       return res.json({ products: [] });
     }
     res.json(cart);
@@ -23,9 +19,6 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// -------------------
-// POST: Ürün ekle
-// -------------------
 router.post("/", verifyToken, async (req, res) => {
   const { productId, quantity } = req.body;
   try {
@@ -45,7 +38,7 @@ router.post("/", verifyToken, async (req, res) => {
     }
 
     await cart.save();
-    await cart.populate("products.product"); // frontend için detaylı ürün bilgisi
+    await cart.populate("products.product");
     res.json(cart);
   } catch (err) {
     console.error(err);
@@ -53,9 +46,6 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-// -------------------
-// DELETE: Ürünü cart'tan sil
-// -------------------
 router.delete("/:productId", verifyToken, async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id });
@@ -74,9 +64,6 @@ router.delete("/:productId", verifyToken, async (req, res) => {
   }
 });
 
-// -------------------
-// PUT: Ürün miktarını güncelle
-// -------------------
 router.put("/:productId", verifyToken, async (req, res) => {
   const { quantity } = req.body;
   try {
@@ -97,6 +84,25 @@ router.put("/:productId", verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update quantity" });
+  }
+});
+// routes/cartRoutes.js
+
+router.delete("/clear", verifyToken, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    cart.products = [];
+    await cart.save();
+
+    res.json({ message: "Cart cleared" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to clear cart" });
   }
 });
 

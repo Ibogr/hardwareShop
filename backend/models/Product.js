@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+//to create a field for product
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -18,6 +19,7 @@ const productSchema = new mongoose.Schema(
 
     image: String,
   },
+  //timestamps: it create the field automatic about time
   { timestamps: true }
 );
 

@@ -1,64 +1,97 @@
 import express from "express";
-import Order from "../models/Order.js";  // sadece import et, tekrar model tanımlama yok
-import Cart from "../models/Cart.js";
+import Order from "../models/Order.js";
 import verifyToken from "../middleware/authMiddleware.js";
+import verifyAdmin from "../middleware/adminMiddleware.js";
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const router = express.Router();
 
-// POST: Sipariş oluştur
+// ✅ CREATE ORDER
 router.post("/", verifyToken, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { address } = req.body;
+    const { products, address, total, payment } = req.body;
 
-    // 🛒 Kullanıcının cart'ını al
-    const cart = await Cart.findOne({ user: userId }).populate(
-      "products.product"
-    );
-    if (!cart || cart.products.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
-
-    // 🧮 Toplam fiyat
-    const total = cart.products.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    );
-
-    // 📝 Order oluştur
     const order = new Order({
-      user: userId,
-      products: cart.products.map((p) => ({
-        product: p.product._id,
-        quantity: p.quantity,
-      })),
+      user: req.user._id,
+      products,
       address,
       total,
+      payment: {
+        isPaid: payment?.isPaid || false,
+      },
     });
 
     await order.save();
 
-    // 🧹 Cart’ı temizle
-    cart.products = [];
-    await cart.save();
-
-    res.status(201).json({ message: "Order placed successfully", order });
+    res.json(order);
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ message: "Failed to place order", error: err.message });
+    res.status(500).json({ message: "Order failed" });
   }
 });
-router.get("/my", verifyToken, async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user._id })
-      .populate("products.product", "name price")
-      .sort({ createdAt: -1 });
 
-    res.json(orders);
+// ✅ USER ORDERS
+router.get("/my", verifyToken, async (req, res) => {
+  const orders = await Order.find({ user: req.user._id })
+    .populate("products.product", "name price")
+    .sort({ createdAt: -1 });
+
+  res.json(orders);
+});
+
+// ✅ PAYMENT (FAKE)
+router.put("/:id/pay", verifyToken, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    order.payment.isPaid = true;
+    order.payment.paidAt = new Date();
+    order.status = "Paid";
+
+    await order.save();
+
+    res.json(order);
   } catch (err) {
-    res.status(500).json({ message: "Failed to get orders" });
+    res.status(500).json({ message: "Payment failed" });
+  }
+});
+
+// ✅ ADMIN STATUS UPDATE
+router.put("/:id/status", verifyAdmin, async (req, res) => {
+  const { status } = req.body;
+
+  const order = await Order.findById(req.params.id);
+  order.status = status;
+
+  await order.save();
+
+  res.json(order);
+});
+
+// ✅ ADMIN GET ALL ORDERS
+router.get("/", verifyAdmin, async (req, res) => {
+  const orders = await Order.find()
+    .populate("user", "name email")
+    .populate("products.product", "name price");
+
+  res.json(orders);
+});
+
+router.post("/create-payment-intent", verifyToken, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // euro → cent
+      currency: "eur",
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Payment failed" });
   }
 });
 

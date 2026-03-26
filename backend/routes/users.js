@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/me", verifyToken, async (req, res) => {
   try {
     res.json(req.user); // middleware zaten user'ı ekliyor
+    console.log(req.user, "user req");
   } catch (err) {
     res.status(500).json({ message: "Failed to get user" });
   }

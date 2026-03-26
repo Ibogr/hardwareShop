@@ -20,7 +20,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://sparkling-ganache-202925.netlify.app",
+    // origin: "https://sparkling-ganache-202925.netlify.app",
+    origin: "http://localhost:5173",
   })
 );
 app.use(express.json());

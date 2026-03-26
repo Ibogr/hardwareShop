@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 
 function Navbar() {
   const [query, setQuery] = useState("");
-  const [user, setUser] = useState(null); // kullanıcı bilgisi
-  const [showLogin, setShowLogin] = useState(true); // toggle için
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
-  // User bilgilerini al
   useEffect(() => {
     if (!token) return;
 
@@ -18,18 +17,16 @@ function Navbar() {
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/api/users/me`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
-        setUser(data); // { _id, name, email, role }
+        setUser(data);
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchUser();
   }, [token]);
 
@@ -51,16 +48,17 @@ function Navbar() {
           HardWare
         </Link>
 
+        {/* ✅ FIXED HAMBURGER */}
         <button
           className="navbar-toggler"
-          data-bs-toggle="collapse"
-          data-bs-target="#menu"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="menu">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`}>
+          {/* LEFT MENU */}
+          <ul className="navbar-nav me-auto">
             <li className="nav-item">
               <Link className="nav-link" to="/">
                 Home
@@ -80,13 +78,6 @@ function Navbar() {
                 </Link>
               </li>
             )}
-            {user?.role === "admin" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin/orders">
-                  Orders
-                </Link>
-              </li>
-            )}
 
             <li className="nav-item">
               <Link className="nav-link" to="/contact">
@@ -99,31 +90,9 @@ function Navbar() {
                 About
               </Link>
             </li>
-
-            {/* Admin ise Add Product */}
-            {user?.role === "admin" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin/add_product">
-                  Add Product
-                </Link>
-              </li>
-            )}
-            {user?.role === "admin" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin/orders">
-                  admin orders
-                </Link>
-              </li>
-            )}
-            {token && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/my-orders">
-                  My Orders
-                </Link>
-              </li>
-            )}
           </ul>
 
+          {/* SEARCH */}
           <form className="d-flex me-3" onSubmit={handleSearch}>
             <input
               className="form-control me-2"
@@ -132,49 +101,70 @@ function Navbar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="btn btn-outline-light" type="submit">
-              Search
-            </button>
+            <button className="btn btn-outline-light">Search</button>
           </form>
 
+          {/* RIGHT SIDE */}
           {!token ? (
-            <div className="d-flex align-items-center">
-              {showLogin ? (
-                <>
-                  <Link to="/login" className="btn btn-outline-light me-2">
-                    Login
-                  </Link>
-                  <span className="text-light">|</span>
-                  <button
-                    className="btn btn-link btn-sm text-warning ms-2"
-                    onClick={() => setShowLogin(false)}
-                  >
-                    Sign Up
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/signup" className="btn btn-warning me-2">
-                    Sign Up
-                  </Link>
-                  <span className="text-light">|</span>
-                  <button
-                    className="btn btn-link btn-sm text-light ms-2"
-                    onClick={() => setShowLogin(true)}
-                  >
-                    Login
-                  </button>
-                </>
-              )}
+            <div>
+              <Link to="/login" className="btn btn-outline-light me-2">
+                Login
+              </Link>
+              <Link to="/signup" className="btn btn-warning">
+                Sign Up
+              </Link>
             </div>
           ) : (
-            <div className="d-flex align-items-center">
-              <span className="text-light me-3">
-                Hello, {user?.name || "null"}
-              </span>
-              <button className="btn btn-danger" onClick={handleLogout}>
-                Logout
+            <div className="dropdown">
+              <button
+                className="btn btn-outline-light dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                {user?.name || "User"}
               </button>
+
+              <ul className="dropdown-menu dropdown-menu-end">
+                <li>
+                  <Link className="dropdown-item" to="/my-orders">
+                    My Orders
+                  </Link>
+                </li>
+
+                {/* ADMIN */}
+                {user?.role === "admin" && (
+                  <>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                    <li className="dropdown-header">Admin</li>
+
+                    <li>
+                      <Link className="dropdown-item" to="/admin/orders">
+                        Orders
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link className="dropdown-item" to="/admin/add_product">
+                        Add Product
+                      </Link>
+                    </li>
+                  </>
+                )}
+
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+
+                <li>
+                  <button
+                    className="dropdown-item text-danger"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
             </div>
           )}
         </div>

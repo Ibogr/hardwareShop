@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import AddProduct from "./pages/AddProduct";
@@ -10,41 +9,38 @@ import Cart from "./pages/Cart.jsx";
 import Contact from "./pages/Contact.jsx";
 import About from "./pages/About.jsx";
 import Login from "./pages/Login";
+import Checkout from "./pages/Checkout";
 import Signup from "./pages/Signup";
 import AdminOrders from "./pages/AdminOrders";
 import UserOrders from "./pages/UserOrders.jsx";
 
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
 function App() {
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
+
   return (
-    <>
+    <Elements stripe={stripePromise}>
       <Navbar />
 
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/products" element={<Products />} />
-
         <Route path="/login" element={<Login />} />
-
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/product/:id" element={<ProductDetail />} />
-
         <Route path="/cart" element={<Cart />} />
-
         <Route path="/contact" element={<Contact />} />
-
         <Route path="/admin/add_product" element={<AddProduct />} />
-
         <Route path="/admin/orders" element={<AdminOrders />} />
-
         <Route path="/my-orders" element={<UserOrders />} />
-
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/about" element={<About />} />
       </Routes>
 
       <Footer />
-    </>
+    </Elements>
   );
 }
 
