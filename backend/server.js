@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://sparkling-ganache-202925.netlify.app",
+    origin: "https://rainbow-valkyrie-5d51e2.netlify.app",
     // origin: "http://localhost:5173",
   })
 );
