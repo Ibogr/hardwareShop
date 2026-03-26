@@ -1,8 +1,8 @@
-import express from "express"
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import productRoutes from"./routes/productRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import "./config/cloudinaryConnect.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -10,23 +10,17 @@ import orderRoutes from "./routes/orderRoutes.js";
 import adminOrdersRoutes from "./routes/adminOrdersRoutes.js";
 import userRoutes from "./routes/users.js";
 
-
 const PORT = process.env.PORT || 5000;
-
 
 dotenv.config();
 
-
-
 connectDB();
-
 
 const app = express();
 
-
 app.use(
   cors({
-    origin: "https://gilded-lolly-f5636d.netlify.app"
+    origin: "https://sparkling-ganache-202925.netlify.app",
   })
 );
 app.use(express.json());
@@ -41,7 +35,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin/orders", adminOrdersRoutes);
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
