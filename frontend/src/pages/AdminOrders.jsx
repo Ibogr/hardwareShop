@@ -8,9 +8,12 @@ function AdminOrders() {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:4000/api/admin/orders", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/orders`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch orders");
         const data = await res.json();
@@ -53,7 +56,6 @@ function AdminOrders() {
   };
 
   if (loading) return <p className="container mt-5">Loading orders...</p>;
-
 
   return (
     <div className="container mt-5">
