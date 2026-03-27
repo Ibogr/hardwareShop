@@ -9,6 +9,7 @@ router.get("/", verifyToken, adminMiddleware, async (req, res) => {
   const orders = await Order.find()
     .populate("user", "name email")
     .populate("products.product", "name price");
+  console.log("this is api/admin/orders")
 
   res.json(orders);
 });
